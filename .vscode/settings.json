@@ -1,0 +1,7 @@
+{
+    "python.pythonPath": "/home/suyash/Desktop/env/bin/python3",
+    "python.linting.banditEnabled": false,
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true,
+    "python.formatting.provider": "autopep8"
+}

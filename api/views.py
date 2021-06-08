@@ -1,16 +1,22 @@
 import io
 
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
+# from django.shortcuts import render
+from rest_framework.decorators import api_view
 from rest_framework.parsers import JSONParser
 from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
+# from rest_framework.generics import GenericAPIView
+# from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, CreateModelMixin, DestroyModelMixin
 
 from .models import Student
 from .serializers import StudentSerializer
 
 
+# Normal class Based View(can be use in django)
 @method_decorator(csrf_exempt, name='dispatch')
 class StudentAPI(View):
 
@@ -27,9 +33,10 @@ class StudentAPI(View):
             return HttpResponse(json_data, content_type='application/json')
         stu = Student.objects.all()
         serializer = StudentSerializer(stu, many=True)
-        json_data = JSONRenderer().render(serializer.data)
-        # print(json_data)
-        return HttpResponse(json_data, content_type='application/json')
+        # json_data = JSONRenderer().render(serializer.data)
+        # # print(json_data)
+        # return HttpResponse(json_data, content_type='application/json')
+        return JsonResponse(serializer.data, safe=False)
 
     def post(self, request, *args, **kwargs):
         json_data = request.body
@@ -75,3 +82,20 @@ class StudentAPI(View):
         }
         json_data = JSONRenderer().render(response)
         return HttpResponse(json_data, content_type='application/json')
+
+
+# Function based Api View
+# Now when we get post or do any CRUD thing we have to pass headers in which content-Type = 'application/json'
+# is defined which in form of JSON
+
+@api_view(['POST', 'GET', 'DELETE'])
+def hello_world(request):
+    if request.method == 'POST':
+        data = request.data
+        return Response({'msg': data})
+    return Response({'msg': 'Hello world'})
+
+
+# this class is using GenericAPIVIew which reduce lines of code for like validation, getting data from json and and
+# returning data in json very easily
+

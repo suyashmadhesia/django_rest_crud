@@ -40,3 +40,15 @@ class StudentSerializer(serializers.Serializer):
         if name.lower() != 'suyash':
             raise serializers.ValidationError('Name Must be Suyash')
         return attrs
+
+
+# ModelSerializer for easy serialization in without creating serializer model or writing update and create methods
+
+class StudentModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Student
+        fields = ['name', 'roll', 'city']
+        # read_only_fields = ['name', 'city'] for read only
+        extra_kwargs = {'name': {'read_only': True}}
+
+        # ModelSerializer Validation is same as Serializer Class

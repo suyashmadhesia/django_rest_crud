@@ -5,12 +5,15 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 # from django.shortcuts import render
+from rest_framework import status, viewsets
 from rest_framework.decorators import api_view
+
 from rest_framework.parsers import JSONParser
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-# from rest_framework.generics import GenericAPIView
-# from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, CreateModelMixin, DestroyModelMixin
+from rest_framework.generics import GenericAPIView, ListAPIView
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, CreateModelMixin, DestroyModelMixin
+from rest_framework.views import APIView
 
 from .models import Student
 from .serializers import StudentSerializer
@@ -99,3 +102,74 @@ def hello_world(request):
 # this class is using GenericAPIVIew which reduce lines of code for like validation, getting data from json and and
 # returning data in json very easily
 
+class StdAPI(APIView):
+
+    def get(self, request, format=None):
+        all_students = Student.objects.all()
+        serializer = StudentSerializer(all_students, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = StudentSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'msg': 'Data Created'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # def put(self, request, pk, format=None):
+    #     return
+
+
+# generic api view # no pk value is passed
+
+class StListApi(GenericAPIView, ListModelMixin):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+
+class StCreateAPi(GenericAPIView, CreateModelMixin):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+
+# concrete View class in django rest_framework
+'''
+    ListApiView , Createapiview, Reteriveapiview, UdateAPIview,DestroyAPiView
+    ListCreateAPIView, RetrieveUdateAPIView, RetrieveDestroyAPIView, RetriveUpdateDestroyAPIView
+'''
+
+
+class StudentList(ListAPIView):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+
+
+# all concrete view is done same as StudentList(ListAPIView) class
+
+# ViewSet class
+'''
+    A ViewSet class is simply a type of class based view, that does not provide any method handlers such as get()
+    or post() , and instead provides actions such as list() and create() retrieve() update() partial_update() destroy() 
+'''
+
+
+class StudentViewSet(viewsets.ViewSet):
+    def list(self, request):
+        stu = Student.objects.all()
+        serializer = StudentSerializer(stu, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        id = pk
+        if id is not None:
+            stu = Student.objects.get(id=id)
+            serial = StudentSerializer(stu)
+            return Response(serial.data)
+
+    # all functions all defined same as list

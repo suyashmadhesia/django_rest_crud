@@ -173,3 +173,9 @@ class StudentViewSet(viewsets.ViewSet):
             return Response(serial.data)
 
     # all functions all defined same as list
+
+
+# Model View Set for crud one class for all function
+class StudentViewSet(viewsets.ModelViewSet):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer

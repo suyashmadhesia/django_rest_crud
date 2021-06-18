@@ -6,9 +6,11 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 # from django.shortcuts import render
 from rest_framework import status, viewsets
+from rest_framework.authentication import BasicAuthentication, SessionAuthentication
 from rest_framework.decorators import api_view
 
 from rest_framework.parsers import JSONParser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, ListAPIView
@@ -17,7 +19,7 @@ from rest_framework.views import APIView
 
 from .models import Student
 from .serializers import StudentSerializer
-
+from .customepermissions import MyPermission
 
 # Normal class Based View(can be use in django)
 @method_decorator(csrf_exempt, name='dispatch')
@@ -152,6 +154,8 @@ class StudentList(ListAPIView):
 
 # all concrete view is done same as StudentList(ListAPIView) class
 
+
+
 # ViewSet class
 '''
     A ViewSet class is simply a type of class based view, that does not provide any method handlers such as get()
@@ -176,6 +180,13 @@ class StudentViewSet(viewsets.ViewSet):
 
 
 # Model View Set for crud one class for all function
-class StudentViewSet(viewsets.ModelViewSet):
+class StudentViewSet1(viewsets.ModelViewSet):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+
+
+# token generaton in django
+
